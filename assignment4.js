@@ -12,6 +12,42 @@
 // keyup events could be helpful to get value of field as the user types
 
 (function() {
-  // Magic!
-  console.log('Keepin\'n it clean with an external script!');
+
+
+  // Get the text the user is typing in the search bar
+  $('.flexsearch-input').keyup(function(event){
+    var text = $(".flexsearch-input").val();
+    $(".dropdown-content").html("");
+    // Retrieve data for all possible topics
+    retrieveJSON("all", text);
+  });
+
+  // Find matches using AJAX
+  function retrieveJSON(category, searchText){
+    $.ajax({
+      url:"http://www.mattbowytz.com/simple_api.json?data=" + category,
+      type:"GET",
+      dataType:"json"
+    })
+    .done(function(json){
+      var substringMatches = [];
+      json.data.programming.forEach(function(entry){
+        entry = entry.toLowerCase();
+        if(searchText.length > 0 && entry.startsWith(searchText.toLowerCase())){
+          substringMatches.push(entry);
+          $(".dropdown-content").append("<a href=\"#\">" + entry + "</a>");
+        }
+      });
+      json.data.interests.forEach(function(entry){
+        entry = entry.toLowerCase();
+        if(searchText.length > 0 && entry.startsWith(searchText.toLowerCase())){
+          substringMatches.push(entry);
+          $(".dropdown-content").append("<a href=\"#\">" + entry + "</a>");
+        }
+      });
+    })
+    .fail(function(xhr, status, error){
+      console.log('ERROR: ' + error);
+    });
+  }
 })();
